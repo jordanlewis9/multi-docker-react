@@ -19,6 +19,6 @@ jobs:
       - run: docker build -t jordanlewis9/multi-worker-multi-docker ./worker
 
       - run: docker push jordanlewis9/multi-client-multi-docker
-      - run: docker push jordanlewis9/multi-client-multi-docker
-      - run: docker push jordanlewis9/multi-client-multi-docker
-      - run: docker push jordanlewis9/multi-client-multi-docker
+      - run: docker push jordanlewis9/multi-nginx-multi-docker
+      - run: docker push jordanlewis9/multi-server-multi-docker
+      - run: docker push jordanlewis9/multi-worker-multi-docker
