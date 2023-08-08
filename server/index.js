@@ -41,9 +41,14 @@ app.get('/', (req, res) => {
 });
 
 app.get('/values/all', async (req, res) => {
-    const values = await pgClient.query('SELECT * from values');
-
-    res.send(values.rows);
+    try {
+        const values = await pgClient.query('SELECT * from values');
+    
+        res.send(values.rows);
+    } catch (err) {
+        console.log(err);
+        res.status(400).send({ error: err });
+    }
 });
 
 app.get('/values/current', async (req, res) => {
@@ -59,21 +64,31 @@ app.post('/values', async (req, res) => {
         return res.status(422).send('Index too high');
     }
 
-    redisClient.hset('values', index, 'Nothing yet!');
-    redisPublisher.publish('insert', index);
-    await pgClient.query('INSERT INTO values(number) VALUES($1)', [index]);
-
-
-    const allIndicies = await pgClient.query('SELECT * from values');
-    redisClient.hgetall('values', (err, values) => {
-        res.send({ allValues: values, indecies: allIndicies.rows, working: true });
-    })
+    try {
+        redisClient.hset('values', index, 'Nothing yet!');
+        redisPublisher.publish('insert', index);
+        await pgClient.query('INSERT INTO values(number) VALUES($1)', [index]);
+    
+    
+        const allIndicies = await pgClient.query('SELECT * from values');
+        redisClient.hgetall('values', (err, values) => {
+            res.send({ allValues: values, indecies: allIndicies.rows, working: true });
+        })
+    } catch (err) {
+        console.log(err);
+        res.status(400).send({ error: err });
+    }
 });
 
 app.delete('/values/delete', async (req, res) => {
-    redisClient.del('values');
-    await pgClient.query('DELETE FROM values');
-    res.send({ deleted: true })
+    try {
+        redisClient.del('values');
+        await pgClient.query('DELETE FROM values');
+        res.send({ deleted: true })
+    } catch (err) {
+        console.log(err);
+        res.status(400).send({ error: err });
+    }
 })
 
 app.listen(5000, err => {
